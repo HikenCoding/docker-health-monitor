@@ -1,9 +1,31 @@
 import docker
 import time
+import requests
 
-# Unser Zustandsspeicher im RAM (Deduplizierung)
-# Key: Container-ID, Value: Letzter bekannter Status
+# ⚠️ HIER DEINE KOPIERTE URL VON WEBHOOK.SITE EINFÜGEN!
+
 ALARMED_CONTAINERS = {}
+
+def send_webhook_alert(container_name, status, event_type="alarm"):
+    """Sendet eine strukturierte JSON-Payload an den konfigurierten Webhook."""
+    # Wir bauen ein schönes JSON-Objekt, das ein Admin sofort versteht
+    payload = {
+        "event": "Docker Environment Alert",
+        "type": event_type,
+        "container_name": container_name,
+        "status": status.upper(),
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    try:
+        # Hier schießen wir den HTTP-POST-Request ab
+        response = requests.post(WEBHOOK_URL, json=payload, timeout=5)
+        if response.status_code == 200 or response.status_code == 201:
+            print(f"📡 Webhook erfolgreich gesendet für '{container_name}' ({event_type})")
+        else:
+            print(f"❌ Webhook-Fehler: Server antwortete mit Status {response.status_code}")
+    except Exception as e:
+        print(f"❌ Netzwerkfehler beim Senden des Webhooks: {e}")
 
 def check_container_health():
     print("🔄 Starte Health-Check der Container...")
@@ -17,27 +39,27 @@ def check_container_health():
             c_id = container.id
 
             if status != "running":
-                # Nur alarmieren, wenn wir für diesen Container nicht schon Alarm geschlagen haben
                 if c_id not in ALARMED_CONTAINERS:
-                    print(f"🚨 NEUER ALARM: Container '{name}' ist offline! Status: [{status.upper()}]")
+                    print(f"🚨 NEUER ALARM: Container '{name}' ist offline!")
                     ALARMED_CONTAINERS[c_id] = status
+                    # JETZT FEUERN WIR DEN WEBHOOK!
+                    send_webhook_alert(name, status, event_type="alarm")
                 else:
-                    print(f"😴 Spam-Schutz aktiv: '{name}' ist immer noch offline. Kein neuer Alarm.")
+                    print(f"😴 Spam-Schutz aktiv für '{name}'.")
             else:
-                # Wenn der Container (wieder) läuft, aber vorher defekt war
                 if c_id in ALARMED_CONTAINERS:
                     print(f"🎉 ENTWARNUNG: Container '{name}' läuft wieder!")
                     del ALARMED_CONTAINERS[c_id]
-                else:
-                    print(f"✅ OK: '{name}' läuft.")
+                    # ENTWARNUNG PER WEBHOOK SENDEN!
+                    send_webhook_alert(name, status, event_type="recovery")
                     
-        print(f"--- Check beendet. Aktuell im Fehlerspeicher: {len(ALARMED_CONTAINERS)} Container ---\n")
+        print(f"--- Check beendet. Fehler-Zustand: {len(ALARMED_CONTAINERS)} ---\n")
             
     except Exception as e:
         print(f"❌ Fehler beim Health-Check: {e}")
 
 def main():
-    CHECK_INTERVAL = 5  # 5 Sekunden für unsere Testphase
+    CHECK_INTERVAL = 5
     print(f"🚀 Docker-Health-Monitor aktiv. Intervall: {CHECK_INTERVAL}s")
     
     try:
@@ -45,7 +67,7 @@ def main():
             check_container_health()
             time.sleep(CHECK_INTERVAL)
     except KeyboardInterrupt:
-        print("\n🛑 Monitor vom Admin beendet. Bis bald!")
+        print("\n🛑 Monitor beendet. Ciao!")
 
 if __name__ == "__main__":
     main()
