@@ -1,14 +1,23 @@
+import os
 import docker
 import time
 import requests
+from dotenv import load_dotenv
 
-# ⚠️ HIER DEINE KOPIERTE URL VON WEBHOOK.SITE EINFÜGEN!
+# Lädt die Variablen aus der .env-Datei in die Umgebungsvariablen des Systems
+load_dotenv()
+
+# Hier holen wir uns die URL sicher aus dem System. 
+# Falls sie fehlt, brechen wir mit einer klaren Fehlermeldung ab!
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+
+if not WEBHOOK_URL:
+    raise ValueError("❌ Kritischer Fehler: WEBHOOK_URL wurde in der .env-Datei nicht gefunden!")
 
 ALARMED_CONTAINERS = {}
 
 def send_webhook_alert(container_name, status, event_type="alarm"):
     """Sendet eine strukturierte JSON-Payload an den konfigurierten Webhook."""
-    # Wir bauen ein schönes JSON-Objekt, das ein Admin sofort versteht
     payload = {
         "event": "Docker Environment Alert",
         "type": event_type,
@@ -18,9 +27,8 @@ def send_webhook_alert(container_name, status, event_type="alarm"):
     }
     
     try:
-        # Hier schießen wir den HTTP-POST-Request ab
         response = requests.post(WEBHOOK_URL, json=payload, timeout=5)
-        if response.status_code == 200 or response.status_code == 201:
+        if response.status_code in [200, 201]:
             print(f"📡 Webhook erfolgreich gesendet für '{container_name}' ({event_type})")
         else:
             print(f"❌ Webhook-Fehler: Server antwortete mit Status {response.status_code}")
@@ -42,7 +50,6 @@ def check_container_health():
                 if c_id not in ALARMED_CONTAINERS:
                     print(f"🚨 NEUER ALARM: Container '{name}' ist offline!")
                     ALARMED_CONTAINERS[c_id] = status
-                    # JETZT FEUERN WIR DEN WEBHOOK!
                     send_webhook_alert(name, status, event_type="alarm")
                 else:
                     print(f"😴 Spam-Schutz aktiv für '{name}'.")
@@ -50,7 +57,6 @@ def check_container_health():
                 if c_id in ALARMED_CONTAINERS:
                     print(f"🎉 ENTWARNUNG: Container '{name}' läuft wieder!")
                     del ALARMED_CONTAINERS[c_id]
-                    # ENTWARNUNG PER WEBHOOK SENDEN!
                     send_webhook_alert(name, status, event_type="recovery")
                     
         print(f"--- Check beendet. Fehler-Zustand: {len(ALARMED_CONTAINERS)} ---\n")
