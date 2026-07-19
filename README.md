@@ -64,11 +64,7 @@ Das Projekt ist vollständig dockerisiert. Das bedeutet, Sie müssen **kein Pyth
 
 4. **Den Monitor als Container starten (mit Docker-Socket-Anbindung):**
     ```bash
-   docker run -d \
-  --name docker-health-monitor \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  --env-file .env \
-  docker-health-monitor:latest
+docker run -d --name docker-health-monitor -v /var/run/docker.sock:/var/run/docker.sock --env-file .env docker-health-monitor:latest
     ```
 
 5. **Ergebnis prüfen:**
