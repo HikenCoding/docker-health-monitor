@@ -20,4 +20,18 @@ Dieses Projekt ist ein automatisierter Health-Monitor für Docker-Umgebungen, ge
    pip install -r requirements.txt
    ```
 
+
+## 🛠️ Technologie-Stack
+
+Dieses Projekt kombiniert moderne DevOps-Werkzeuge, Cloud-Praktiken und Software-Entwicklung nach Industriestandard:
+
+- **Python 3.10:** Die Kern-Programmiersprache für die Logik des Monitors.
+- **Docker & Docker-API:** Zur Containerisierung des Tools und für das Auslesen des lokalen Docker-Sockets (`/var/run/docker.sock`).
+- **GitHub Actions (CI/CD):** Automatisierte Pipeline zur kontinuierlichen Qualitäts- und Syntaxprüfung bei jedem Code-Push.
+- **Git:** Versionsverwaltung mit strukturierter Commit-Historie nach dem *Conventional Commits*-Standard (`feat:`, `sec:`, `docs:`).
+- **python-dotenv:** Sicheres Konfigurationsmanagement über Umgebungsvariablen (`.env`), um sensible Daten (Secrets) vom Quellcode zu trennen.
+- **Python Requests & Webhooks:** Für die Echtzeit-Kommunikation und das Abfeuern von strukturierten JSON- payloads an externe HTTP-Endpunkte.
+- **VirtualBox & Ubuntu Linux:** Die zugrundeliegende, isolierte Entwicklungsumgebung.
+
+
 Vielen Spaß beim Ausprobieren!
