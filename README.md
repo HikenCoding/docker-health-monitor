@@ -34,4 +34,68 @@ Dieses Projekt kombiniert moderne DevOps-Werkzeuge, Cloud-Praktiken und Software
 - **VirtualBox & Ubuntu Linux:** Die zugrundeliegende, isolierte Entwicklungsumgebung.
 
 
+## 🧪 So können Recruiter / Entwickler das Projekt testen
+
+Das Projekt ist vollständig dockerisiert. Das bedeutet, Sie müssen **kein Python** oder zusätzliche Bibliotheken auf Ihrem System installieren. Sie benötigen lediglich eine installierte Docker-Umgebung.
+
+### Schritt-für-Schritt-Anleitung:
+
+1. **Repository klonen & Verzeichnis wechseln:**
+   ```bash
+   git clone <HIER_DEIN_GITHUB_REPO_LINK_EINFÜGEN>
+   cd docker-health-monitor
+    ```
+
+2. **Webhook-URL vorbereiten:**
+- Gehen Sie auf **Webhook.site** und kopieren Sie Ihre einzigartige Test-URL.
+- Kopieren Sie die Datei `.env.example` und nennen Sie sie `.env`:
+    ```bash
+   cp .env.example .env
+    ```
+- Öffnen Sie die `.env` und fügen Sie Ihre URL ein (wichtig: ohne Leerzeichen um das `=`):
+    ```bash
+   WEBHOOK_URL="[https://webhook.site/ihre-id](https://webhook.site/ihre-id)"
+    ```
+
+3. **Das Docker-Image lokal bauen:**
+    ```bash
+   docker build -t docker-health-monitor:latest .
+    ```
+
+4. **Den Monitor als Container starten (mit Docker-Socket-Anbindung):**
+    ```bash
+   docker run -d \
+  --name docker-health-monitor \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --env-file .env \
+  docker-health-monitor:latest
+    ```
+
+5. **Ergebnis prüfen:**
+Schauen Sie nun in Ihren geöffneten Browser-Tab von Webhook.site. Dort kommen nun live die Alarme an, die der Container vollautomatisch aus Ihrer Umgebung sendet!
+
+
+## 🚀 Manueller Schnellstart (Alternativ ohne Docker-Container)
+
+Falls Sie das Skript lieber direkt lokal in einer virtuellen Python-Umgebung ausführen möchten:
+
+1. Virtuelle Umgebung einrichten und aktivieren:
+    ```bash
+   python -m venv .venv
+source .venv/bin/activate
+    ```
+
+2. Abhängigkeiten installieren:
+    ```bash
+   pip install -r requirements.txt
+    ```
+
+3.  `.env`-Datei wie oben beschrieben anlegen.
+
+4. Skript starten:
+    ```bash
+   python src/monitor.py
+    ```
+
+
 Vielen Spaß beim Ausprobieren!
