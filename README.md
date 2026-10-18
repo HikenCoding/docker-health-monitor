@@ -95,3 +95,25 @@ source .venv/bin/activate
 
 
 Vielen Spaß beim Ausprobieren!
+
+
+## ✍🏽 Persönliche Zusammenfassung Erklärung dieses Projektes 
+**Was genau macht das Projekt den eigentlich?**
+Es ist praktisch eine automatische Alarmanlage. Wir können uns das so vorstellen:
+Der Monitor schaut durch das Schlüsselloch (den Docker-Socket)
+Dann sieht er sofort, wenn ein Container abstürzt oder neu startet
+Und als nächstes, falls etwas passiert, schickt er sofort eine SMS/Nachricht an dich (das sieht man im Webhook)
+
+Es gibt insgesamt vier wichtige Bausteine 🟦:
+1. Der Draht zum Docker (Schnittstelle, welches direkt mit der Docker-Zentrale des Computers spricht. Weiß in Echtzeit, was mit allen Containern passiert)
+2. Nachrichten Funktion (HTTP-POST-Webhook) (Status eines Containers ändert sich, Python packt kleine Info Nachricht JSON zusammen, sendet per Internet an Ziel URL im Webhook)
+3. Spam-Schutz (Container schwankt kurz hintereinander und man will nicht 200 Nachrichten pro Minuten bekommen. Skript merkt sich RAM und letzten Status und sendet nur 1 Nachricht, wenn Zustand sich wirklich ändert) Somit keinen Spam. Deswegen Spam-Schutz ;-)
+4. Sichere Konfiguration (.env) Passwörter oder Webhook-Urls stehen nicht fest im Code, sondern in seperaten Textdateien (.env). Code kann sicher auf Github hochgeladen werden.
+
+ **Was genau ist den der Webhook?**
+ Es ist wie eine automatische Push Benachrichtung. Wenn man eine Pizza bestellt (hmm lecker hab gerade voll Lust auf eine) dann gibt man seine Hindernummer an. Man wird nicht alle 2 Minuten benachrichtigt, was jetzt ist. Hat der Pizzabäcker den teig gut geknetet? Hat er sich die Hände gewaschen? Ist die Pizza im Ofen. Das wären zu viele Infos und würden uns nur nerven. Stattdessen bekommt man eine SMS, sobald der Fahrer unterwegs ist. Und das ist quasi der Webhook. Die SMS in dem Fall ist der Webhook.
+
+ **Warum dieses Projekt?**
+ Mit dem Projekt, wollte ich in die Aufgabenbereich eines IT-Systemadministrator eintauchen, weil ich mich als Softwareentwickler nicht nur die Softwareentwickklung interessiere, sondern auch was alles dahinter genau passiert und auch um das Netzwerk-Thema. Ich finde es sehr interessant und habe auch deswegen auch weitere Projekte zum Thema Netzwerk / Infrastruktur realisiert.
+
+
